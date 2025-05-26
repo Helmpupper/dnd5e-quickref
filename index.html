@@ -155,6 +155,16 @@
                             <div class="item-desc">Enable Darkmode</div>
                         </div>
                     </div>
+                    <div class="item itemsize" title="Include 2024 Rules">
+                        <div class="item-icon"><label class="switch">
+                                <input type="checkbox" id="rules2024-switch">
+                                <span class="slider round"></span>
+                            </label></div>
+                        <div class="item-text-container text" id="2024rules-toggle-item">
+                            <div class="item-title">Include 2024 Rules</div>
+                            <div class="item-desc">Show/hide D&D 2024 Rules.</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -194,21 +204,21 @@
     <script type="text/javascript" src="js/data_environment.js" charset="utf-8"></script>
     <script type="text/javascript" src="js/quickref.js" charset="utf-8"></script>
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var cookieNotice = document.getElementById('cookie-notice');
             var acceptButton = document.getElementById('accept-cookies');
-        
+
             // Check if user has already accepted cookies
             if (!localStorage.getItem('cookiesAccepted')) {
                 cookieNotice.style.display = 'block';
             }
-        
-            acceptButton.addEventListener('click', function() {
+
+            acceptButton.addEventListener('click', function () {
                 localStorage.setItem('cookiesAccepted', 'true');
                 cookieNotice.style.display = 'none';
             });
         });
-        </script>
+    </script>
 
 </body>
 

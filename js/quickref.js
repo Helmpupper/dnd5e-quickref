@@ -129,6 +129,7 @@ document.addEventListener("DOMContentLoaded", function () {
     var optionalCheckbox = document.getElementById('optional-switch');
     var homebrewCheckbox = document.getElementById('homebrew-switch');
     var darkModeCheckbox = document.getElementById('darkmode-switch');
+    var rules2024Checkbox = document.getElementById('rules2024-switch');
 
     // Function to handle checkbox changes for optional and homebrew rules
     function handleRulesToggle() {
@@ -164,19 +165,29 @@ document.addEventListener("DOMContentLoaded", function () {
         });
     }
 
+    // Function to handle 2024 rules toggle
+    function handle2024RulesToggle() {
+        // Store the value in localStorage
+        localStorage.setItem('rules2024', rules2024Checkbox.checked ? 'true' : 'false');
+        // Reload the page to load the correct data files
+        location.reload();
+    }
+
     // Add event listeners to the checkboxes
     optionalCheckbox.addEventListener('change', handleRulesToggle);
     homebrewCheckbox.addEventListener('change', handleRulesToggle);
     darkModeCheckbox.addEventListener('change', handleDarkModeToggle);
+    rules2024Checkbox.addEventListener('change', handle2024RulesToggle);
 
     // Call the functions to initially set the correct states
     handleRulesToggle();
-    handleDarkModeToggle(); // This will now apply the correct initial state
+    handleDarkModeToggle();
 
     // Get the toggle items
     var optionalToggleItem = document.getElementById('optional-toggle-item');
     var homebrewToggleItem = document.getElementById('homebrew-toggle-item');
     var darkModeToggleItem = document.getElementById('darkmode-toggle-item');
+    var rules2024ToggleItem = document.getElementById('2024rules-toggle-item');
 
     // Function to handle click on the toggle items
     function handleToggleClick(checkbox) {
@@ -190,8 +201,43 @@ document.addEventListener("DOMContentLoaded", function () {
     optionalToggleItem.addEventListener('click', handleToggleClick(optionalCheckbox));
     homebrewToggleItem.addEventListener('click', handleToggleClick(homebrewCheckbox));
     darkModeToggleItem.addEventListener('click', handleToggleClick(darkModeCheckbox));
+    rules2024ToggleItem.addEventListener('click', handleToggleClick(rules2024Checkbox));
 
     // Ensure dark mode is off by default
     darkModeCheckbox.checked = false;
     handleDarkModeToggle();
+
+    // Set 2024 rules toggle state from localStorage
+    var rules2024 = localStorage.getItem('rules2024') === 'true';
+    rules2024Checkbox.checked = rules2024;
 });
+
+// Dynamically load the correct data files based on the 2024 rules toggle
+(function() {
+    var rules2024 = localStorage.getItem('rules2024') === 'true';
+    var head = document.getElementsByTagName('head')[0];
+
+    function loadScript(src) {
+        var script = document.createElement('script');
+        script.src = src;
+        script.defer = false;
+        head.appendChild(script);
+    }
+
+    // Always load movement and other non-action files as usual
+    loadScript('js/data_movement.js');
+    loadScript('js/data_bonusaction.js');
+    loadScript('js/data_reaction.js');
+    loadScript('js/data_condition.js');
+    loadScript('js/data_environment_obscurance.js');
+    loadScript('js/data_environment_light.js');
+    loadScript('js/data_environment_vision.js');
+    loadScript('js/data_environment_cover.js');
+
+    // Load the correct action file
+    if (rules2024) {
+        loadScript('js/2024_data_action.js');
+    } else {
+        loadScript('js/data_action.js');
+    }
+})();
