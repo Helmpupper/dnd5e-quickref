@@ -1,4 +1,4 @@
-dnd5e-quickref
+dnd5e 2014 + dnd5e 2024 QuickReference Sheet 
 ==============
 original author https://github.com/crobi/dnd5e-quickref - I only built on top of his work to customize this page to my needs and likes.
 2024 Rules based on content from https://github.com/nico-713/dnd5e-quickref-2024
