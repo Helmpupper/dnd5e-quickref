@@ -161,8 +161,8 @@
                                 <span class="slider round"></span>
                             </label></div>
                         <div class="item-text-container text" id="2024rules-toggle-item">
-                            <div class="item-title">Include 2024 Rules</div>
-                            <div class="item-desc">Show/hide D&D 2024 Rules.</div>
+                            <div class="item-title">Switch to 2024 Rules</div>
+                            <div class="item-desc">Enable D&D 2024 Rules.</div>
                         </div>
                     </div>
                 </div>
@@ -196,12 +196,6 @@
         <button id="accept-cookies">Accept</button>
     </div>
     <!-- Data -->
-    <script type="text/javascript" src="js/data_movement.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/data_action.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/data_bonusaction.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/data_reaction.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/data_condition.js" charset="utf-8"></script>
-    <script type="text/javascript" src="js/data_environment.js" charset="utf-8"></script>
     <script type="text/javascript" src="js/quickref.js" charset="utf-8"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
@@ -218,6 +212,21 @@
                 cookieNotice.style.display = 'none';
             });
         });
+
+        // Set default values if not present
+        if (localStorage.getItem('optional') === null) {
+            localStorage.setItem('optional', 'false');
+        }
+        if (localStorage.getItem('homebrew') === null) {
+            localStorage.setItem('homebrew', 'false');
+        }
+
+        // Set checkbox states from localStorage
+        optionalCheckbox.checked = localStorage.getItem('optional') === 'true';
+        homebrewCheckbox.checked = localStorage.getItem('homebrew') === 'true';
+
+        // Now call the function to update the UI
+        handleRulesToggle();
     </script>
 
 </body>
