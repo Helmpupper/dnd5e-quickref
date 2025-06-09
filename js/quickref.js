@@ -1,8 +1,9 @@
-// Loads the appropriate rule data files based on the 2024 rules toggle
+// Dynamically load the correct data files (2024 or standard) based on localStorage setting
 (function() {
     var rules2024 = localStorage.getItem('rules2024') === 'true';
     var head = document.getElementsByTagName('head')[0];
 
+    // Helper to inject a script tag for a data file
     function loadScript(src) {
         var script = document.createElement('script');
         script.src = src;
@@ -10,6 +11,7 @@
         head.appendChild(script);
     }
 
+    // Load either the 2024 or standard data file for a given base name
     function loadRuleFile(base) {
         if (rules2024) {
             loadScript('js/2024_' + base + '.js');
@@ -18,6 +20,7 @@
         }
     }
 
+    // List of all rule data files to load
     var ruleFiles = [
         'data_movement',
         'data_action',
@@ -30,7 +33,8 @@
     ruleFiles.forEach(loadRuleFile);
 })();
 
-// Adds a quick reference item to the parent element and sets up modal open logic with section color
+// Create and append a quick reference item to a section
+// Sets up modal open logic for the item
 function add_quickref_item(parent, data, type) {
     var icon = data.icon || "perspective-dice-six-faces-one";
     var subtitle = data.subtitle || "";
@@ -58,26 +62,22 @@ function add_quickref_item(parent, data, type) {
 
     item.appendChild(itemTextContainer);
 
-    // Set up click event to open the modal with section and title colors
+    // When the item is clicked, show the modal with the item's data
     item.onclick = function () {
-        // Always get the latest colors and dark mode state
         var section = parent.parentNode.parentNode;
         var style = window.getComputedStyle(section);
         var color = style.backgroundColor;
         var borderColor = style.borderColor;
         var darkMode = document.body.classList.contains('dark-mode-active') || document.querySelector('.dark-mode')?.classList.contains('dark-mode-active');
-
-        // Get the section title color for the modal title
         var sectionTitle = section.querySelector('.section-title');
         var titleColor = sectionTitle ? window.getComputedStyle(sectionTitle).color : style.color;
-
         show_modal(data, color, type, titleColor, borderColor, darkMode);
     }
     item.setAttribute("title", optional);
     parent.appendChild(item);
 }
 
-// Displays the modal with the provided data and section colors
+// Show the modal dialog for a quickref item
 function show_modal(data, color, type, titleColor, borderColor, darkMode) {
     var title = data.title || "[no title]";
     var subtitle = data.description || data.subtitle || "";
@@ -98,7 +98,7 @@ function show_modal(data, color, type, titleColor, borderColor, darkMode) {
     modal.classList.add("modal-visible");
     modalBackdrop.style.height = window.innerHeight + "px";
 
-    // Apply section colors to modal
+    // Set modal colors to match section
     modalContainer.style.backgroundColor = color;
     modalContainer.style.borderColor = borderColor || color;
     modalTitle.style.color = titleColor || '';
@@ -114,7 +114,7 @@ function show_modal(data, color, type, titleColor, borderColor, darkMode) {
     modalBullets.innerHTML = bulletsHTML;
 }
 
-// Hides the modal if the click is outside the modal container
+// Hide the modal if the user clicks outside the modal container
 function hide_modal(event) {
     var modalContainer = document.getElementById("modal-container");
     if (!modalContainer.contains(event.target)) {
@@ -127,7 +127,7 @@ function hide_modal(event) {
 var modal = document.getElementById("modal");
 modal.addEventListener("click", hide_modal);
 
-// Fills a section with quick reference items from data
+// Fill a section with quickref items from a data array
 function fill_section(data, parentname, type) {
     var parent = document.getElementById(parentname);
     data.forEach(function (item) {
@@ -135,7 +135,7 @@ function fill_section(data, parentname, type) {
     });
 }
 
-// Initializes all quick reference sections and modal event
+// Initialize all quickref sections and apply initial filtering
 function init() {
     fill_section(data_movement, "basic-movement", "Move");
     fill_section(data_action, "basic-actions", "Action");
@@ -149,19 +149,43 @@ function init() {
 
     var modal = document.getElementById("modal");
     modal.addEventListener("click", hide_modal);
+    // Apply initial filtering after items are created
+    if (typeof window.handleRulesToggle === 'function') {
+        window.handleRulesToggle();
+    }
 }
 
+// Wait for all data scripts to be loaded before initializing and filtering
 window.onload = function() {
-    init();
-    // Update item visibility after items are created
-    handleRulesToggle();
+    function waitForDataAndInit() {
+        // Check if all required data variables are defined
+        if (
+            typeof data_movement !== 'undefined' &&
+            typeof data_action !== 'undefined' &&
+            typeof data_bonusaction !== 'undefined' &&
+            typeof data_reaction !== 'undefined' &&
+            typeof data_condition !== 'undefined' &&
+            typeof data_environment_obscurance !== 'undefined' &&
+            typeof data_environment_light !== 'undefined' &&
+            typeof data_environment_vision !== 'undefined' &&
+            typeof data_environment_cover !== 'undefined'
+        ) {
+            init();
+        } else {
+            // Try again in 50ms
+            setTimeout(waitForDataAndInit, 50);
+        }
+    }
+    waitForDataAndInit();
 }
 
-// Handles settings switches and toggles for rules, dark mode, and homebrew
-// Sets up event listeners and initial states
-// Applies visibility and mode changes to items and page
+// DOMContentLoaded: Set up settings toggles, state, and filtering logic
+// This block runs as soon as the DOM is ready
+// Handles all settings toggles and their event listeners
+// Also defines the filtering logic for quickref items
 
 document.addEventListener("DOMContentLoaded", function () {
+    // Ensure default values for toggles in localStorage
     if (localStorage.getItem('optional') === null) {
         localStorage.setItem('optional', 'false');
     }
@@ -169,11 +193,13 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem('homebrew', 'false');
     }
 
+    // Get references to all settings checkboxes
     var optionalCheckbox = document.getElementById('optional-switch');
     var homebrewCheckbox = document.getElementById('homebrew-switch');
     var darkModeCheckbox = document.getElementById('darkmode-switch');
     var rules2024Checkbox = document.getElementById('rules2024-switch');
 
+    // Set initial toggle state from localStorage
     var rules2024 = localStorage.getItem('rules2024') === 'true';
     rules2024Checkbox.checked = rules2024;
 
@@ -186,8 +212,40 @@ document.addEventListener("DOMContentLoaded", function () {
     var homebrew = localStorage.getItem('homebrew') === 'true';
     homebrewCheckbox.checked = homebrew;
 
+    // Apply dark mode state on load
     handleDarkModeToggle();
 
+    // Filtering logic for quickref items based on toggles
+    function handleRulesToggle() {
+        var items = document.getElementsByClassName('item itemsize');
+        for (var i = 0; i < items.length; i++) {
+            var item = items[i];
+            var ruleType = item.getAttribute('title');
+            // Only filter items that are actual quickref rules
+            if (ruleType === 'Optional rule' || ruleType === 'Homebrew rule' || ruleType === 'Standard rule') {
+                var isOptional = ruleType === 'Optional rule';
+                var isHomebrew = ruleType === 'Homebrew rule';
+                // Show item if:
+                // - It's an optional rule and the optional toggle is ON
+                // - It's a homebrew rule and the homebrew toggle is ON
+                // - It's a standard rule (always show)
+                if ((isOptional && optionalCheckbox.checked) ||
+                    (isHomebrew && homebrewCheckbox.checked) ||
+                    (!isOptional && !isHomebrew)) {
+                    item.style.display = 'block';
+                } else {
+                    item.style.display = 'none';
+                }
+            } else {
+                // Always show settings toggles and other non-rule items
+                item.style.display = 'block';
+            }
+        }
+    }
+    // Expose filtering function globally so init() can call it
+    window.handleRulesToggle = handleRulesToggle;
+
+    // Event listeners for toggles: update localStorage and re-filter on change
     optionalCheckbox.addEventListener('change', function() {
         localStorage.setItem('optional', optionalCheckbox.checked ? 'true' : 'false');
         handleRulesToggle();
@@ -202,25 +260,7 @@ document.addEventListener("DOMContentLoaded", function () {
     });
     rules2024Checkbox.addEventListener('change', handle2024RulesToggle);
 
-    // Updates item visibility based on optional and homebrew toggles
-    function handleRulesToggle() {
-        var items = document.getElementsByClassName('item itemsize');
-        for (var i = 0; i < items.length; i++) {
-            var item = items[i];
-            var ruleType = item.getAttribute('title');
-            var isOptional = ruleType === 'Optional rule';
-            var isHomebrew = ruleType === 'Homebrew rule';
-            if ((isOptional && optionalCheckbox.checked) ||
-                (isHomebrew && homebrewCheckbox.checked) ||
-                (!isOptional && !isHomebrew)) {
-                item.style.display = 'block';
-            } else {
-                item.style.display = 'none';
-            }
-        }
-    }
-
-    // Applies or removes dark mode classes and stores state
+    // Toggle dark mode classes on the page
     function handleDarkModeToggle() {
         const darkModeElements = document.querySelectorAll('.dark-mode, .page-background');
         darkModeElements.forEach(element => {
@@ -233,20 +273,18 @@ document.addEventListener("DOMContentLoaded", function () {
         localStorage.setItem('darkmode', darkModeCheckbox.checked ? 'true' : 'false');
     }
 
-    // Handles 2024 rules toggle and reloads the page
+    // Handle switching between 2024 and standard rules
     function handle2024RulesToggle() {
         localStorage.setItem('rules2024', rules2024Checkbox.checked ? 'true' : 'false');
         location.reload();
     }
 
-    handleDarkModeToggle();
-
+    // Set up click handlers for the settings toggle items (for better UX)
     var optionalToggleItem = document.getElementById('optional-toggle-item');
     var homebrewToggleItem = document.getElementById('homebrew-toggle-item');
     var darkModeToggleItem = document.getElementById('darkmode-toggle-item');
     var rules2024ToggleItem = document.getElementById('2024rules-toggle-item');
 
-    // Helper to toggle checkboxes on click
     function handleToggleClick(checkbox) {
         return function() {
             checkbox.checked = !checkbox.checked;
@@ -258,7 +296,4 @@ document.addEventListener("DOMContentLoaded", function () {
     homebrewToggleItem.addEventListener('click', handleToggleClick(homebrewCheckbox));
     darkModeToggleItem.addEventListener('click', handleToggleClick(darkModeCheckbox));
     rules2024ToggleItem.addEventListener('click', handleToggleClick(rules2024Checkbox));
-
-    // Ensure correct item visibility on load
-    handleRulesToggle();
 });

@@ -1,6 +1,4 @@
-<!-- ------------------------------------------------------------------ -->
-<!--           <quickref-item> template                                 -->
-<!-- ------------------------------------------------------------------ -->
+<!-- <quickref-item> Web Component Template -->
 <template id="quickref-item">
     <style>
         :host {
@@ -52,48 +50,50 @@
             <span id="text"></span>
         </div>
     </div>
-
 </template>
 
 <script>
-        (function (window, document) {
-            var elemName = 'quickref-item';
-            var thatDoc = document;
-            var thisDoc = (thatDoc.currentScript || thatDoc._currentScript).ownerDocument;
+    // Define and register the <quickref-item> custom element
+    (function (window, document) {
+        var elemName = 'quickref-item';
+        var thatDoc = document;
+        // Get the document that owns this script (for template access)
+        var thisDoc = (thatDoc.currentScript || thatDoc._currentScript).ownerDocument;
 
-            var proto = Object.create(HTMLElement.prototype, {
-                createdCallback: {
-                    value: function () {
-                        var template = thisDoc.getElementById(elemName);
-                        var clone = thatDoc.importNode(template.content, true);
-                        var root = this.createShadowRoot().appendChild(clone);
-                    }
-                },
-                attachedCallback: {
-                    value: function () {
-                        var root = this.shadowRoot;
-                        var icon = root.getElementById("icon");
-                        var title = root.getElementById("title");
-                        var text = root.getElementById("text");
-
-                        for (var i = 0; i < this.attributes.length; i++) {
-                            var attribute = this.attributes[i];
-                            var name = attribute.name;
-                            var value = attribute.value;
-                            switch (name) {
-                                case "data-icon":   icon.className += " icon-" + value; break;
-                                case "data-title":  title.innerHTML = value; break;
-                                case "data-text":   text.innerHTML = value.replace("|","<br />"); break;
-                            }
-
+        // Define the prototype for the custom element
+        var proto = Object.create(HTMLElement.prototype, {
+            // Called when the element is created
+            createdCallback: {
+                value: function () {
+                    // Clone the template content and attach it to the shadow DOM
+                    var template = thisDoc.getElementById(elemName);
+                    var clone = thatDoc.importNode(template.content, true);
+                    var root = this.createShadowRoot().appendChild(clone);
+                }
+            },
+            // Called when the element is attached to the DOM
+            attachedCallback: {
+                value: function () {
+                    var root = this.shadowRoot;
+                    var icon = root.getElementById("icon");
+                    var title = root.getElementById("title");
+                    var text = root.getElementById("text");
+                    // Set icon, title, and text from element attributes
+                    for (var i = 0; i < this.attributes.length; i++) {
+                        var attribute = this.attributes[i];
+                        var name = attribute.name;
+                        var value = attribute.value;
+                        switch (name) {
+                            case "data-icon":   icon.className += " icon-" + value; break;
+                            case "data-title":  title.innerHTML = value; break;
+                            case "data-text":   text.innerHTML = value.replace("|","<br />"); break;
                         }
-
                     }
                 }
-            });
-            thatDoc.registerElement(elemName, { prototype: proto });
-        })(window, document);
+            }
+        });
+        // Register the custom element with the browser
+        thatDoc.registerElement(elemName, { prototype: proto });
+    })(window, document);
 </script>
-<!-- ------------------------------------------------------------------ -->
-<!--           end of template                                          -->
-<!-- ------------------------------------------------------------------ -->
+<!-- End of <quickref-item> template definition -->

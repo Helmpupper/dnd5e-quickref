@@ -168,22 +168,26 @@
                 </div>
             </div>
         </div>
-        <!-- Modal -->
+        <!-- Modal dialog for displaying detailed quickref item info -->
         <div class="modal" id="modal" tabindex="-1">
             <div class="modal-backdrop" id="modal-backdrop"></div>
             <div class="modal-dialog modalsize">
                 <div class="section-container modal-container" id="modal-container">
+                    <!-- Modal header: displays the title and type of the selected item -->
                     <div class="section-title" id="modal-title">
                         Modal title<span class="float-right">Action</span>
                     </div>
                     <div class="section-content">
+                        <!-- Modal subtitle: shows a short description or subtitle for the item -->
                         <div class="section-row section-subtitle text" id="modal-subtitle">
                             Subtitle
                         </div>
+                        <!-- Modal bullets: lists detailed points or rules for the item -->
                         <div class="section-row text">
                             <div id="modal-bullets">
                             </div>
                         </div>
+                        <!-- Modal reference: shows the source or reference for the rule/item -->
                         <div class="section-row text" id="modal-reference">
                         </div>
                     </div>
@@ -191,18 +195,19 @@
             </div>
         </div>
     </div>
+    <!-- Cookie notice: informs users about cookie usage and provides an accept button -->
     <div id="cookie-notice" class="cookie-notice">
         <p>This website uses cookies to ensure you get the best experience on our website.</p>
         <button id="accept-cookies">Accept</button>
     </div>
-    <!-- Data -->
+    <!-- Main quickref JavaScript logic: handles dynamic content, toggles, and filtering -->
     <script type="text/javascript" src="js/quickref.js" charset="utf-8"></script>
     <script>
+        // Cookie notice logic: shows the notice if not accepted, hides it on accept
         document.addEventListener('DOMContentLoaded', function () {
             var cookieNotice = document.getElementById('cookie-notice');
             var acceptButton = document.getElementById('accept-cookies');
 
-            // Check if user has already accepted cookies
             if (!localStorage.getItem('cookiesAccepted')) {
                 cookieNotice.style.display = 'block';
             }
@@ -212,21 +217,6 @@
                 cookieNotice.style.display = 'none';
             });
         });
-
-        // Set default values if not present
-        if (localStorage.getItem('optional') === null) {
-            localStorage.setItem('optional', 'false');
-        }
-        if (localStorage.getItem('homebrew') === null) {
-            localStorage.setItem('homebrew', 'false');
-        }
-
-        // Set checkbox states from localStorage
-        optionalCheckbox.checked = localStorage.getItem('optional') === 'true';
-        homebrewCheckbox.checked = localStorage.getItem('homebrew') === 'true';
-
-        // Now call the function to update the UI
-        handleRulesToggle();
     </script>
 
 </body>
