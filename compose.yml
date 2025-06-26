@@ -1,0 +1,6 @@
+---
+services:
+  app:
+    image: dnd
+    ports:
+      - 891:80
